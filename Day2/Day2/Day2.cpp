@@ -2,21 +2,25 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <vector>
+#include <deque>
+#include <algorithm>
 using namespace std;
 
 bool countDuplicates(string s, int num) {		//takes a string and the desired number of duplicate characters tries to find if a character repeats the desired
-	for (char c = 'a'; c <= 'z'; c++) {			//number of times. goes trhough the alphabet (there's almost certainly a better way of doing this)	
-		int count = 0;
-		for (char d : s) {
-			if (d == c) count++;				//counts the number of times that character has appeared
-		}
-		if (count == num) return true;			//if any character repeats the desired amount of times end the search
+	sort(s.begin(), s.end());					//Sorts the string alphabetically
+	char current = '1';
+	int count = 0;
+	for (int c = 0; c < s.length(); c++) {		//reads current chacter and next counts the number of times that character has appeared
+		if (current != s.at(c)) {
+			if (count == num) return true;		//if any character repeats the desired amount of times end the search
+			current = s.at(c);					//otherwise reset the buffer
+			count = 1;							//reset the counter
+		} else { count++; }
 	}
 	return false;
 }
 
-string findSimilar(string s, vector<string> t) {//takes a string(s) and a vector of strings to compare it to to find a string its similar(1 char difference) to
+string findSimilar(string s, deque<string> t) {//takes a string(s) and a vector of strings to compare it to to find a string its similar(1 char difference) to
 	for (string u : t) {						//iterate through each string in the vector comparing it to the currently worked string(s)
 		int count = 0;
 		for (int index = 0; index < u.length(); ++index) {
@@ -28,7 +32,7 @@ string findSimilar(string s, vector<string> t) {//takes a string(s) and a vector
 }
 
 int main() {
-	vector<string> ids, workedIds;
+	deque<string> ids, workedIds;
 	string line;
 	int twos = 0, threes = 0;
 	ifstream inputFile("input.txt");			//open the input file
@@ -45,9 +49,8 @@ int main() {
 	cout << twos * threes << endl;				//print out the checksum
 
 	workedIds.insert(workedIds.end(), ids.begin(), ids.end()); //create a copy of the vector to be used for faster searching
-
 	for (string s : ids) {						//loop through the vector
-		workedIds.erase(workedIds.begin());		//removing the current string from the comparison vector as its isn't neccesary to compare to itself
+		workedIds.pop_front();					//removing the current string from the comparison vector as its isn't neccesary to compare to itself
 		string t = findSimilar(s, workedIds);	//or previous entries. compare the string to all non compared strings
 		if (t != "") {							//if a similar (one char difference) has been found 
 			for (int index = 0; index < s.length(); index++) {
